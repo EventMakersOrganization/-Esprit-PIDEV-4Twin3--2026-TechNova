@@ -1,16 +1,141 @@
-<div class="login-container">
-  <h2>Login</h2>
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="email">Email:</label>
-      <input type="email" id="email" formControlName="email" required>
+<div class="login-page">
+  <!-- LEFT SIDE - VISUAL HERO SECTION WITH PREMIUM IMAGE -->
+  <div class="hero-section">
+    <div class="hero-card">
+      <div class="hero-overlay"></div>
+      
+      <!-- Animated Particles -->
+      <div class="hero-particles">
+        <div class="particle" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="top: 30%; left: 30%; animation-delay: 2s;"></div>
+        <div class="particle" style="top: 50%; left: 60%; animation-delay: 4s;"></div>
+        <div class="particle" style="top: 70%; left: 80%; animation-delay: 1s;"></div>
+        <div class="particle" style="top: 80%; left: 20%; animation-delay: 3s;"></div>
+        <div class="particle" style="top: 40%; left: 40%; animation-delay: 5s;"></div>
+        <div class="particle" style="top: 60%; left: 70%; animation-delay: 2.5s;"></div>
+      </div>
+      
+      <!-- Premium Badge -->
+      <div class="hero-badge">
+        ✨ 50K+ Students Learning Daily
+      </div>
+      
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <h1>Start Your Journey With Smart Start</h1>
+        <p>Learn. Grow. Succeed.</p>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input type="password" id="password" formControlName="password" required>
+  </div>
+
+  <!-- RIGHT SIDE - LOGIN FORM SECTION -->
+  <div class="form-section">
+    <div class="login-container">
+      <!-- Brand Logo -->
+      <div class="brand-logo">
+        <h2>Smart Start</h2>
+        <p>Empowering minds for a smarter future</p>
+      </div>
+
+      <!-- Welcome Header -->
+      <p class="welcome-text">Welcome back! 👋</p>
+
+      <!-- Login/Register Toggle Tabs -->
+      <div class="toggle-container">
+        <button 
+          class="toggle-btn active" 
+          type="button"
+          [class.active]="true">
+          Login
+        </button>
+        <button 
+          class="toggle-btn inactive" 
+          type="button"
+          (click)="router.navigate(['/register'])">
+          Register
+        </button>
+      </div>
+
+      <!-- Description Text with Emoji -->
+      <p class="description">
+        🎓 Access your personalized learning dashboard and continue your educational journey with Smart Start's AI-powered platform.
+      </p>
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Email Input Field -->
+        <div class="form-group">
+          <label for="email">
+            <span>📧</span> Email Address
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email" 
+              placeholder="Enter your email address"
+              required>
+          </div>
+        </div>
+
+        <!-- Password Input Field with Visibility Toggle -->
+        <div class="form-group">
+          <label for="password">
+            <span>🔒</span> Password
+          </label>
+          <div class="input-wrapper">
+            <input 
+              [type]="passwordVisible ? 'text' : 'password'" 
+              id="password" 
+              formControlName="password" 
+              placeholder="Enter your password"
+              required>
+            <button 
+              type="button" 
+              class="password-toggle" 
+              (click)="togglePasswordVisibility()">
+              <span [class.eye-icon]="!passwordVisible" [class.eye-icon.slash]="passwordVisible"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember Me & Forgot Password Row -->
+        <div class="row">
+          <div class="remember-me">
+            <input type="checkbox" id="remember" name="remember">
+            <label for="remember">Keep me signed in</label>
+          </div>
+          <a href="#" class="forgot-password">Forgot Password?</a>
+        </div>
+
+        <!-- Login Button with Loading State -->
+        <button 
+          type="submit" 
+          class="login-btn" 
+          [disabled]="!loginForm.valid || isLoading">
+          <span *ngIf="!isLoading">Login to Dashboard</span>
+          <span *ngIf="isLoading" class="loading-spinner"></span>
+        </button>
+
+        <!-- Error Message -->
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+        <!-- Register Link -->
+        <p class="register-link">
+          New to Smart Start? <a routerLink="/register">Create free account →</a>
+        </p>
+
+        <!-- Social Login Options -->
+        <div class="social-login">
+          <p>Or continue with</p>
+          <div class="social-icons">
+            <a href="#" class="social-icon" title="Google">G</a>
+            <a href="#" class="social-icon" title="Facebook">f</a>
+            <a href="#" class="social-icon" title="LinkedIn">in</a>
+            <a href="#" class="social-icon" title="Microsoft">🔷</a>
+          </div>
+        </div>
+      </form>
     </div>
-    <button type="submit" [disabled]="!loginForm.valid">Login</button>
-  </form>
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-  <p>Don't have an account? <a routerLink="/register">Register</a></p>
+  </div>
 </div>

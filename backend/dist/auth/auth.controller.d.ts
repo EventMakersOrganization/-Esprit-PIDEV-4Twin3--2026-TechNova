@@ -7,7 +7,7 @@ export declare class AuthController {
         message: string;
     }>;
     login(req: any): Promise<{
-        token: any;
+        token: string;
         user: {
             id: any;
             name: any;
