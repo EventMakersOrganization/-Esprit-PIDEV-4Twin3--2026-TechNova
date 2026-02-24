@@ -1,4 +1,5 @@
 import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
+import { OAuth2Client } from 'google-auth-library';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -40,6 +41,43 @@ export class AuthService {
 
     await user.save();
     return { message: 'User registered successfully' };
+  }
+
+  async loginWithGoogle(idToken: string) {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      throw new BadRequestException('Google client ID is not configured');
+    }
+
+    const client = new OAuth2Client(clientId);
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({ idToken, audience: clientId });
+    } catch (err) {
+      throw new BadRequestException('Invalid Google ID token');
+    }
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      throw new BadRequestException('Google token payload missing email');
+    }
+
+    const email = payload.email;
+    const first_name = payload.given_name || '';
+    const last_name = payload.family_name || '';
+
+    let user = await this.userModel.findOne({ email });
+    if (!user) {
+      user = new this.userModel({
+        first_name,
+        last_name,
+        email,
+        role: UserRole.STUDENT,
+      });
+      await user.save();
+    }
+
+    return this.login(user.toObject ? user.toObject() : user);
   }
 
   async validateUser(email: string, password: string): Promise<any> {

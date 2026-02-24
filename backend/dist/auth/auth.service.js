@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
+const google_auth_library_1 = require("google-auth-library");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const jwt_1 = require("@nestjs/jwt");
@@ -44,6 +45,38 @@ let AuthService = class AuthService {
         });
         await user.save();
         return { message: 'User registered successfully' };
+    }
+    async loginWithGoogle(idToken) {
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        if (!clientId) {
+            throw new common_1.BadRequestException('Google client ID is not configured');
+        }
+        const client = new google_auth_library_1.OAuth2Client(clientId);
+        let ticket;
+        try {
+            ticket = await client.verifyIdToken({ idToken, audience: clientId });
+        }
+        catch (err) {
+            throw new common_1.BadRequestException('Invalid Google ID token');
+        }
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+            throw new common_1.BadRequestException('Google token payload missing email');
+        }
+        const email = payload.email;
+        const first_name = payload.given_name || '';
+        const last_name = payload.family_name || '';
+        let user = await this.userModel.findOne({ email });
+        if (!user) {
+            user = new this.userModel({
+                first_name,
+                last_name,
+                email,
+                role: user_schema_1.UserRole.STUDENT,
+            });
+            await user.save();
+        }
+        return this.login(user.toObject ? user.toObject() : user);
     }
     async validateUser(email, password) {
         const user = await this.userModel.findOne({ email }).select('+password');

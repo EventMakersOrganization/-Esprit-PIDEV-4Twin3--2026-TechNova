@@ -15,4 +15,13 @@ export declare class AuthController {
             role: any;
         };
     }>;
+    googleLogin(idToken: string): Promise<{
+        token: string;
+        user: {
+            id: any;
+            first_name: any;
+            last_name: any;
+            role: any;
+        };
+    }>;
 }
