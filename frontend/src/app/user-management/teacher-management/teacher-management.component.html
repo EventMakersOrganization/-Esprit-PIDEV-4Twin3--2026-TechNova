@@ -1,39 +1,83 @@
-<div class="management">
-  <h2>Instructor Management</h2>
-  <div *ngIf="error" class="error">{{ error }}</div>
-  <table>
-    <thead>
-      <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Created At</th>
-        <th>Updated At</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let t of teachers">
-        <td *ngIf="!editing[t.id]">{{ t.first_name }}</td>
-        <td *ngIf="!editing[t.id]">{{ t.last_name }}</td>
-        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].first_name" /></td>
-        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].last_name" /></td>
-        <td>{{ t.email }}</td>
-        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].phone" /></td>
-        <td *ngIf="!editing[t.id]">{{ t.phone }}</td>
-        <td *ngIf="!editing[t.id]">{{ t.createdAt | date:'short' }}</td>
-        <td *ngIf="!editing[t.id]">{{ t.updatedAt | date:'short' }}</td>
-        <td *ngIf="!editing[t.id]">{{ t.status }}</td>
-        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].status" /></td>
-        <td>
-          <button *ngIf="!editing[t.id]" (click)="startEdit(t)">Edit</button>
-          <button *ngIf="editing[t.id]" (click)="save(t.id)">Save</button>
-          <button *ngIf="editing[t.id]" (click)="cancelEdit(t.id)">Cancel</button>
-          <button (click)="deleteUser(t.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="p-8 pb-4">
+  <div class="flex items-end justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Instructor Management</h1>
+      <p class="text-slate-500 mt-1">Review and update instructor accounts.</p>
+    </div>
+    <button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-all">
+      <span class="material-symbols-outlined text-sm">person_add</span> Add Instructor
+    </button>
+  </div>
+  <!-- filters (reuse same structure but simpler) -->
+  <div class="flex flex-wrap items-center gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="flex-1 min-w-[300px] relative">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+      <input [(ngModel)]="filterText" class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Filter by name or email..." type="text"/>
+    </div>
+    <div class="flex items-center gap-2">
+      <select [(ngModel)]="filterStatus" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm py-2 px-3 focus:ring-primary/20">
+        <option>Status: All</option>
+        <option>Active</option>
+        <option>Inactive</option>
+      </select>
+      <button class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500">
+        <span class="material-symbols-outlined">filter_list</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="flex-1 px-8 pb-8 overflow-auto custom-scrollbar max-h-[calc(100vh-12rem)]">
+  <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead class="sticky top-0 z-30">
+        <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">First Name</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Last Name</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Email</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Phone</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Created</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Updated</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Status</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        <tr *ngFor="let t of filteredTeachers" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group">
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[t.id]">{{ t.first_name }}</span>
+            <input *ngIf="editing[t.id]" [(ngModel)]="editModels[t.id].first_name" class="border-b" />
+          </td>
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[t.id]">{{ t.last_name }}</span>
+            <input *ngIf="editing[t.id]" [(ngModel)]="editModels[t.id].last_name" class="border-b" />
+          </td>
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[t.id]">{{ t.email }}</span>
+            <input *ngIf="editing[t.id]" [(ngModel)]="editModels[t.id].email" class="border-b" />
+          </td>
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[t.id]">{{ t.phone }}</span>
+            <input *ngIf="editing[t.id]" [(ngModel)]="editModels[t.id].phone" class="border-b" />
+          </td>
+          <td class="px-6 py-4">{{ t.createdAt | date:'short' }}</td>
+          <td class="px-6 py-4">{{ t.updatedAt | date:'short' }}</td>
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[t.id]">{{ t.status }}</span>
+            <input *ngIf="editing[t.id]" [(ngModel)]="editModels[t.id].status" class="border-b" />
+          </td>
+          <td class="px-6 py-4 text-right align-middle">
+            <button *ngIf="!editing[t.id]" (click)="startEdit(t)" class="text-slate-400 hover:text-slate-900 dark:hover:text-white mr-2">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button *ngIf="editing[t.id]" (click)="save(t.id)" class="text-green-500 mr-2">Save</button>
+            <button *ngIf="editing[t.id]" (click)="cancelEdit(t.id)" class="text-red-500 mr-2">Cancel</button>
+            <button (click)="deleteUser(t.id)" class="text-red-600">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -27,6 +27,12 @@ __decorate([
 ], AdminUpdateUserDto.prototype, "last_name", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEmail)(),
+    __metadata("design:type", String)
+], AdminUpdateUserDto.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsIn)(Object.values(user_schema_1.UserRole)),
     __metadata("design:type", String)
 ], AdminUpdateUserDto.prototype, "role", void 0);
