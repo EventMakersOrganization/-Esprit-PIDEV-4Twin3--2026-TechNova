@@ -17,6 +17,8 @@ export declare class AuthService {
             id: any;
             first_name: any;
             last_name: any;
+            name: string;
+            email: any;
             role: any;
         };
     }>;
@@ -27,7 +29,15 @@ export declare class AuthService {
             id: any;
             first_name: any;
             last_name: any;
+            name: string;
+            email: any;
             role: any;
         };
+    }>;
+    forgotPassword(email: string): Promise<{
+        message: string;
+    }>;
+    resetPassword(token: string, newPassword: string): Promise<{
+        message: string;
     }>;
 }

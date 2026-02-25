@@ -36,6 +36,11 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.forgot {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
 .error {
   color: red;
 }

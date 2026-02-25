@@ -4,6 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import * as nodemailer from 'nodemailer';
 import { User, UserDocument, UserRole } from '../users/schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ActivityService } from '../activity/activity.service';
@@ -102,8 +104,77 @@ export class AuthService {
         id: user._id,
         first_name: user.first_name,
         last_name: user.last_name,
+        // convenient combined name and email for frontend
+        name: `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim(),
+        email: user.email,
         role: user.role,
       },
     };
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const user = await this.userModel.findOne({ email }).select('+passwordResetToken +passwordResetExpires');
+    if (!user) {
+      return { message: 'If an account exists with this email, you will receive a reset link.' };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save({ validateBeforeSave: false });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: process.env.SMTP_USER
+        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+        : undefined,
+    });
+
+    try {
+      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+        await transporter.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: email,
+          subject: 'Password reset',
+          text: `Use this link to reset your password (valid 1 hour): ${resetUrl}`,
+          html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
+        });
+      } else {
+        console.log('[Forgot password] Reset link (no SMTP configured):', resetUrl);
+      }
+    } catch (err) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+      console.error('Send reset email failed:', err);
+    }
+
+    return { message: 'If an account exists with this email, you will receive a reset link.' };
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await this.userModel.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: new Date() },
+    }).select('+password +passwordResetToken +passwordResetExpires');
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    // Skip full schema validation here to avoid failing on old records
+    await user.save({ validateBeforeSave: false });
+
+    return { message: 'Password has been reset. You can log in with your new password.' };
   }
 }

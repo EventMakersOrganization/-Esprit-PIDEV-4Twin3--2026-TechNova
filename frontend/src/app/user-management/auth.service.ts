@@ -9,6 +9,8 @@ interface LoginResponse {
     id: string;
     first_name?: string;
     last_name?: string;
+    name?: string;
+    email?: string;
     role: string;
   };
 }
@@ -37,6 +39,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials).pipe(
       tap(response => {
         localStorage.setItem(this.tokenKey, response.token);
+        localStorage.setItem('userRole', response.user.role);
         this.userSubject.next(response.user);
       })
     );
@@ -46,9 +49,18 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login/google`, { idToken }).pipe(
       tap(response => {
         localStorage.setItem(this.tokenKey, response.token);
+        localStorage.setItem('userRole', response.user.role);
         this.userSubject.next(response.user);
       })
     );
+  }
+
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/reset-password`, { token, password });
   }
 
   logout() {
