@@ -24,6 +24,26 @@ export class TeacherManagementComponent implements OnInit {
   editModels: Record<string, Partial<UserRow>> = {};
   error = '';
 
+  filterText = '';
+  filterStatus = 'Status: All';
+
+  get filteredTeachers(): UserRow[] {
+    return this.teachers.filter(t => {
+      const text = this.filterText.toLowerCase();
+      if (text) {
+        const match =
+          t.first_name?.toLowerCase().includes(text) ||
+          t.last_name?.toLowerCase().includes(text) ||
+          t.email.toLowerCase().includes(text);
+        if (!match) return false;
+      }
+      if (this.filterStatus !== 'Status: All') {
+        if (t.status !== this.filterStatus) return false;
+      }
+      return true;
+    });
+  }
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
@@ -39,7 +59,7 @@ export class TeacherManagementComponent implements OnInit {
 
   startEdit(t: UserRow) {
     this.editing[t.id] = true;
-    this.editModels[t.id] = { first_name: t.first_name, last_name: t.last_name, phone: t.phone || '', status: t.status } as any;
+    this.editModels[t.id] = { first_name: t.first_name, last_name: t.last_name, email: t.email, phone: t.phone || '', status: t.status } as any;
   }
 
   cancelEdit(id: string) {
@@ -48,13 +68,23 @@ export class TeacherManagementComponent implements OnInit {
   }
 
   save(id: string) {
-    const body = this.editModels[id];
+    const raw = this.editModels[id];
+    const body: any = {};
+    Object.keys(raw).forEach(k => {
+      const v = (raw as any)[k];
+      if (v !== '' && v !== null && v !== undefined) {
+        body[k] = v;
+      }
+    });
     this.http.put(`http://localhost:3000/api/admin/user/${id}`, body).subscribe({
       next: () => {
         this.cancelEdit(id);
         this.loadTeachers();
       },
-      error: () => this.error = 'Failed to update'
+      error: (err) => {
+        console.error('update error', err);
+        this.error = 'Failed to update';
+      }
     });
   }
 

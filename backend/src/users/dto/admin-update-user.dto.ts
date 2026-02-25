@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsIn, IsInt } from 'class-validator';
+import { IsOptional, IsString, IsIn, IsInt, IsEmail } from 'class-validator';
 import { UserRole, UserStatus } from '../schemas/user.schema';
 
 export class AdminUpdateUserDto {
@@ -9,6 +9,13 @@ export class AdminUpdateUserDto {
   @IsOptional()
   @IsString()
   last_name?: string;
+
+  @IsOptional()
+  @IsString()
+  // email field added so admins can update user email addresses
+  // validated by class-validator's IsEmail decorator
+  @IsEmail()
+  email?: string;
 
   @IsOptional()
   @IsIn(Object.values(UserRole))

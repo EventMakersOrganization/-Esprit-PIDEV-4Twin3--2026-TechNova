@@ -1,49 +1,127 @@
-<div class="management">
-  <h2>Student Management</h2>
-  <div *ngIf="error" class="error">{{ error }}</div>
-  <div *ngIf="success" class="success">{{ success }}</div>
-  <table>
-    <thead>
-      <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Academic Level</th>
-        <th>Created At</th>
-        <th>Updated At</th>
-        <th>Risk Level</th>
-        <th>Gamification Points</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let s of students">
-        <td *ngIf="!editing[s.id]">{{ s.first_name }}</td>
-        <td *ngIf="!editing[s.id]">{{ s.last_name }}</td>
-        <td *ngIf="editing[s.id]"><input [(ngModel)]="editModels[s.id].first_name" /></td>
-        <td *ngIf="editing[s.id]"><input [(ngModel)]="editModels[s.id].last_name" /></td>
-        <td>{{ s.email }}</td>
-        <td *ngIf="!editing[s.id]">{{ s.phone }}</td>
-        <td *ngIf="editing[s.id]"><input [(ngModel)]="editModels[s.id].phone" /></td>
-        <td *ngIf="!editing[s.id]">{{ s.academic_level }}</td>
-        <td *ngIf="editing[s.id]"><input [(ngModel)]="editModels[s.id].academic_level" /></td>
-        <td *ngIf="!editing[s.id]">{{ s.risk_level }}</td>
-        <td *ngIf="editing[s.id]"><select [(ngModel)]="editModels[s.id].risk_level"><option value="LOW">LOW</option><option value="MEDIUM">MEDIUM</option><option value="HIGH">HIGH</option></select></td>
-        <td *ngIf="!editing[s.id]">{{ s.points_gamification }}</td>
-        <td *ngIf="!editing[s.id]">{{ s.createdAt | date:'short' }}</td>
-        <td *ngIf="!editing[s.id]">{{ s.updatedAt | date:'short' }}</td>
-        <td *ngIf="editing[s.id]"><input type="number" [(ngModel)]="editModels[s.id].points_gamification" /></td>
-        <td *ngIf="!editing[s.id]">{{ s.status }}</td>
-        <td *ngIf="editing[s.id]"><input [(ngModel)]="editModels[s.id].status" /></td>
-        <td>
-          <button *ngIf="!editing[s.id]" (click)="startEdit(s)">Edit</button>
-          <button *ngIf="editing[s.id]" (click)="save(s.id)">Save</button>
-          <button *ngIf="editing[s.id]" (click)="cancelEdit(s.id)">Cancel</button>
-          <button (click)="deleteUser(s.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="p-8 pb-4">
+  <div class="flex items-end justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Student Management</h1>
+      <p class="text-slate-500 mt-1">Monitor, manage and audit individual student learning trajectories.</p>
+    </div>
+    <button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-all">
+      <span class="material-symbols-outlined text-sm">person_add</span> Add Student
+    </button>
+  </div>
+  <!-- Filters Bar -->
+  <div class="flex flex-wrap items-center gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="flex-1 min-w-[300px] relative">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+      <input [(ngModel)]="filterText" class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Filter by name, email, or student ID..." type="text"/>
+    </div>
+    <div class="flex items-center gap-2">
+      <select [(ngModel)]="filterRole" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm py-2 px-3 focus:ring-primary/20">
+        <option>All Roles</option>
+        <option>Students</option>
+        <option>Instructors</option>
+        <option>Admins</option>
+      </select>
+      <select [(ngModel)]="filterStatus" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm py-2 px-3 focus:ring-primary/20">
+        <option>Status: All</option>
+        <option>Active</option>
+        <option>On Leave</option>
+        <option>Restricted</option>
+      </select>
+      <button class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500">
+        <span class="material-symbols-outlined">filter_list</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="flex-1 px-8 pb-8 overflow-auto custom-scrollbar max-h-[calc(100vh-12rem)]">
+  <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead class="sticky top-0 z-30">
+        <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">First Name</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Last Name</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Email</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Phone</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Academic Level</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Risk Level</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Points</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Created</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Updated</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap">Status</th>
+          <th class="px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider bg-white dark:bg-slate-900 whitespace-nowrap text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        <tr *ngFor="let s of filteredStudents" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group">
+          <!-- first name -->
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold">
+                {{ s.first_name?.[0] }}{{ s.last_name?.[0] }}
+              </div>
+              <div>
+                <span *ngIf="!editing[s.id]" class="text-sm font-bold text-slate-900 dark:text-white">{{ s.first_name }}</span>
+                <input *ngIf="editing[s.id]" [(ngModel)]="editModels[s.id].first_name" class="border-b" />
+              </div>
+            </div>
+          </td>
+          <!-- last name -->
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[s.id]">{{ s.last_name }}</span>
+            <input *ngIf="editing[s.id]" [(ngModel)]="editModels[s.id].last_name" class="border-b" />
+          </td>
+          <!-- email -->
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[s.id]">{{ s.email }}</span>
+            <input *ngIf="editing[s.id]" [(ngModel)]="editModels[s.id].email" class="border-b" />
+          </td>
+          <!-- phone -->
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[s.id]">{{ s.phone }}</span>
+            <input *ngIf="editing[s.id]" [(ngModel)]="editModels[s.id].phone" class="border-b" />
+          </td>
+          <!-- academic level -->
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[s.id]">{{ s.academic_level }}</span>
+            <input *ngIf="editing[s.id]" [(ngModel)]="editModels[s.id].academic_level" class="border-b" />
+          </td>
+          <!-- risk level -->
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[s.id]">{{ s.risk_level }}</span>
+            <select *ngIf="editing[s.id]" [(ngModel)]="editModels[s.id].risk_level" class="border-b">
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+            </select>
+          </td>
+          <!-- gamification points -->
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[s.id]">{{ s.points_gamification }}</span>
+            <input *ngIf="editing[s.id]" type="number" [(ngModel)]="editModels[s.id].points_gamification" class="border-b" />
+          </td>
+          <!-- created at -->
+          <td class="px-6 py-4">{{ s.createdAt | date:'short' }}</td>
+          <!-- updated at -->
+          <td class="px-6 py-4">{{ s.updatedAt | date:'short' }}</td>
+          <!-- status -->
+          <td class="px-6 py-4">
+            <span *ngIf="!editing[s.id]">{{ s.status }}</span>
+            <input *ngIf="editing[s.id]" [(ngModel)]="editModels[s.id].status" class="border-b" />
+          </td>
+          <!-- actions -->
+          <td class="px-6 py-4 text-right align-middle">
+            <button *ngIf="!editing[s.id]" (click)="startEdit(s)" class="text-slate-400 hover:text-slate-900 dark:hover:text-white mr-2">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button *ngIf="editing[s.id]" (click)="save(s.id)" class="text-green-500 mr-2">Save</button>
+            <button *ngIf="editing[s.id]" (click)="cancelEdit(s.id)" class="text-red-500 mr-2">Cancel</button>
+            <button (click)="deleteUser(s.id)" class="text-red-600">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

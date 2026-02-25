@@ -25,12 +25,17 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  // admin dashboards
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
-  { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
-  { path: 'admin/students', component: StudentManagementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
-  { path: 'admin/instructors', component: TeacherManagementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
-  // student dashboards
+  {
+    path: 'admin',
+    component: AdminDashboardComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] },
+    children: [
+      { path: '', redirectTo: 'students', pathMatch: 'full' },
+      { path: 'students', component: StudentManagementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+      { path: 'instructors', component: TeacherManagementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+    ]
+  },
   { path: 'student-dashboard', component: StudentDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['student'] } },
   { path: 'student/dashboard', component: StudentDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['student'] } },
 

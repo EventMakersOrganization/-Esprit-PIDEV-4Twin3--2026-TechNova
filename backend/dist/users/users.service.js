@@ -137,6 +137,8 @@ let UsersService = class UsersService {
             user.first_name = dto.first_name;
         if (dto.last_name)
             user.last_name = dto.last_name;
+        if (dto.email)
+            user.email = dto.email;
         if (dto.phone)
             user.phone = dto.phone;
         if (dto.role)
