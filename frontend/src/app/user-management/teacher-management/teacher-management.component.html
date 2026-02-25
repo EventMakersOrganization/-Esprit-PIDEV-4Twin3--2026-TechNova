@@ -1,0 +1,39 @@
+<div class="management">
+  <h2>Instructor Management</h2>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <table>
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Created At</th>
+        <th>Updated At</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of teachers">
+        <td *ngIf="!editing[t.id]">{{ t.first_name }}</td>
+        <td *ngIf="!editing[t.id]">{{ t.last_name }}</td>
+        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].first_name" /></td>
+        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].last_name" /></td>
+        <td>{{ t.email }}</td>
+        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].phone" /></td>
+        <td *ngIf="!editing[t.id]">{{ t.phone }}</td>
+        <td *ngIf="!editing[t.id]">{{ t.createdAt | date:'short' }}</td>
+        <td *ngIf="!editing[t.id]">{{ t.updatedAt | date:'short' }}</td>
+        <td *ngIf="!editing[t.id]">{{ t.status }}</td>
+        <td *ngIf="editing[t.id]"><input [(ngModel)]="editModels[t.id].status" /></td>
+        <td>
+          <button *ngIf="!editing[t.id]" (click)="startEdit(t)">Edit</button>
+          <button *ngIf="editing[t.id]" (click)="save(t.id)">Save</button>
+          <button *ngIf="editing[t.id]" (click)="cancelEdit(t.id)">Cancel</button>
+          <button (click)="deleteUser(t.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
