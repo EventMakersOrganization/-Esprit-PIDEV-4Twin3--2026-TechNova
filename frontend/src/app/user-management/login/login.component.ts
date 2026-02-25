@@ -28,17 +28,33 @@ export class LoginComponent {
 
   ngAfterViewInit(): void {
     const clientId = environment.googleClientId;
-    if (!clientId || !(window as any).google) return;
+    if (!clientId) {
+      console.error('Google Client ID is not configured in environment.ts');
+      return;
+    }
 
-    google.accounts.id.initialize({
-      client_id: clientId,
-      callback: (response: any) => this.handleCredentialResponse(response),
-    });
+    const renderGoogleButton = () => {
+      const googleGlobal = (window as any).google;
+      const buttonElement = document.getElementById('googleButton');
 
-    google.accounts.id.renderButton(
-      document.getElementById('googleButton'),
-      { theme: 'outline', size: 'large' }
-    );
+      if (!googleGlobal || !googleGlobal.accounts || !googleGlobal.accounts.id || !buttonElement) {
+        // Try again shortly if the script or element is not ready yet
+        setTimeout(renderGoogleButton, 500);
+        return;
+      }
+
+      googleGlobal.accounts.id.initialize({
+        client_id: clientId,
+        callback: (response: any) => this.handleCredentialResponse(response),
+      });
+
+      googleGlobal.accounts.id.renderButton(
+        buttonElement,
+        { theme: 'outline', size: 'large' }
+      );
+    };
+
+    renderGoogleButton();
   }
 
   ngOnDestroy(): void {
