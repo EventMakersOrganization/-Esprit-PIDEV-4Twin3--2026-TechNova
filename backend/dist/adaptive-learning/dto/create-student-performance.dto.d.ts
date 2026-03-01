@@ -4,4 +4,6 @@ export declare class CreateStudentPerformanceDto {
     score: number;
     timeSpent?: number;
     source?: string;
+    topic?: string;
+    difficulty?: string;
 }

@@ -1,4 +1,7 @@
-import { IsString, IsNumber, IsOptional, IsEnum, Min, Max } from 'class-validator';
+import {
+  IsString, IsNumber, IsOptional,
+  IsEnum, Min, Max
+} from 'class-validator';
 
 export class CreateStudentPerformanceDto {
 
@@ -20,4 +23,12 @@ export class CreateStudentPerformanceDto {
   @IsOptional()
   @IsEnum(['quiz', 'exercise', 'brainrush', 'level-test'])
   source?: string;
+
+  @IsOptional()
+  @IsString()
+  topic?: string;
+
+  @IsOptional()
+  @IsEnum(['beginner', 'intermediate', 'advanced'])
+  difficulty?: string;
 }

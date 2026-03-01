@@ -20,11 +20,37 @@ export declare class AdaptiveLearningService {
     findProfileByUserId(userId: string): Promise<StudentProfile>;
     updateProfile(userId: string, updateData: Partial<StudentProfile>): Promise<StudentProfile>;
     deleteProfile(userId: string): Promise<void>;
-    createPerformance(dto: CreateStudentPerformanceDto): Promise<StudentPerformance>;
+    createPerformance(dto: CreateStudentPerformanceDto): Promise<StudentPerformance & {
+        adaptation?: any;
+    }>;
     findAllPerformances(): Promise<StudentPerformance[]>;
     findPerformanceByStudent(studentId: string): Promise<StudentPerformance[]>;
     deletePerformance(id: string): Promise<void>;
     getAverageScore(studentId: string): Promise<number>;
+    adaptDifficulty(studentId: string): Promise<{
+        previousLevel: string;
+        newLevel: string;
+        reason: string;
+        averageScore: number;
+        performancesAnalyzed: number;
+        action: 'UP' | 'DOWN' | 'KEEP';
+    }>;
+    adaptDifficultyByTopic(studentId: string, topic: string): Promise<{
+        topic: string;
+        currentLevel: string;
+        suggestedDifficulty: string;
+        averageScore: number;
+        recommendation: string;
+    }>;
+    generateRecommendations(studentId: string): Promise<{
+        recommendations: any[];
+        profile: any;
+        weakTopics: string[];
+        strongTopics: string[];
+        totalGenerated: number;
+    }>;
+    private buildWeakReason;
+    private calcConfidence;
     createRecommendation(dto: CreateRecommendationDto): Promise<Recommendation>;
     findRecommendationsByStudent(studentId: string): Promise<Recommendation[]>;
     markRecommendationViewed(id: string): Promise<Recommendation>;

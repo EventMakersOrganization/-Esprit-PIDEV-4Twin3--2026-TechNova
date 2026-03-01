@@ -41,6 +41,17 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], StudentPerformance.prototype, "source", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 'general' }),
+    __metadata("design:type", String)
+], StudentPerformance.prototype, "topic", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({
+        enum: ['beginner', 'intermediate', 'advanced'],
+        default: 'beginner'
+    }),
+    __metadata("design:type", String)
+], StudentPerformance.prototype, "difficulty", void 0);
 exports.StudentPerformance = StudentPerformance = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], StudentPerformance);

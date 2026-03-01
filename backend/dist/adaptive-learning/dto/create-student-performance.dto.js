@@ -38,4 +38,14 @@ __decorate([
     (0, class_validator_1.IsEnum)(['quiz', 'exercise', 'brainrush', 'level-test']),
     __metadata("design:type", String)
 ], CreateStudentPerformanceDto.prototype, "source", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateStudentPerformanceDto.prototype, "topic", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(['beginner', 'intermediate', 'advanced']),
+    __metadata("design:type", String)
+], CreateStudentPerformanceDto.prototype, "difficulty", void 0);
 //# sourceMappingURL=create-student-performance.dto.js.map

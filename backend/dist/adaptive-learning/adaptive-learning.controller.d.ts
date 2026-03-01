@@ -11,11 +11,35 @@ export declare class AdaptiveLearningController {
     findProfile(userId: string): Promise<import("../users/schemas/student-profile.schema").StudentProfile>;
     updateProfile(userId: string, updateData: any): Promise<import("../users/schemas/student-profile.schema").StudentProfile>;
     deleteProfile(userId: string): Promise<void>;
-    createPerformance(dto: CreateStudentPerformanceDto): Promise<import("./schemas/student-performance.schema").StudentPerformance>;
+    createPerformance(dto: CreateStudentPerformanceDto): Promise<import("./schemas/student-performance.schema").StudentPerformance & {
+        adaptation?: any;
+    }>;
     findAllPerformances(): Promise<import("./schemas/student-performance.schema").StudentPerformance[]>;
     findPerformanceByStudent(studentId: string): Promise<import("./schemas/student-performance.schema").StudentPerformance[]>;
     getAverageScore(studentId: string): Promise<number>;
     deletePerformance(id: string): Promise<void>;
+    adaptDifficulty(studentId: string): Promise<{
+        previousLevel: string;
+        newLevel: string;
+        reason: string;
+        averageScore: number;
+        performancesAnalyzed: number;
+        action: "UP" | "DOWN" | "KEEP";
+    }>;
+    adaptDifficultyByTopic(studentId: string, topic: string): Promise<{
+        topic: string;
+        currentLevel: string;
+        suggestedDifficulty: string;
+        averageScore: number;
+        recommendation: string;
+    }>;
+    generateRecommendations(studentId: string): Promise<{
+        recommendations: any[];
+        profile: any;
+        weakTopics: string[];
+        strongTopics: string[];
+        totalGenerated: number;
+    }>;
     createRecommendation(dto: CreateRecommendationDto): Promise<import("./schemas/recommendation.schema").Recommendation>;
     findRecommendationsByStudent(studentId: string): Promise<import("./schemas/recommendation.schema").Recommendation[]>;
     markViewed(id: string): Promise<import("./schemas/recommendation.schema").Recommendation>;

@@ -78,6 +78,31 @@ export class AdaptiveLearningController {
     return this.adaptiveService.deletePerformance(id);
   }
 
+
+  // ── Difficulty Adaptation ───────────
+@Post('adapt/:studentId')
+adaptDifficulty(@Param('studentId') studentId: string) {
+  return this.adaptiveService.adaptDifficulty(studentId);
+}
+
+@Get('adapt/:studentId/topic/:topic')
+adaptDifficultyByTopic(
+  @Param('studentId') studentId: string,
+  @Param('topic') topic: string
+) {
+  return this.adaptiveService
+    .adaptDifficultyByTopic(studentId, topic);
+}
+
+// ── Generate Recommendations ────────
+@Post('recommendations/generate/:studentId')
+generateRecommendations(
+  @Param('studentId') studentId: string
+) {
+  return this.adaptiveService
+    .generateRecommendations(studentId);
+}
+
   // ── Recommendation ──────────────────
   @Post('recommendations')
   createRecommendation(@Body() dto: CreateRecommendationDto) {

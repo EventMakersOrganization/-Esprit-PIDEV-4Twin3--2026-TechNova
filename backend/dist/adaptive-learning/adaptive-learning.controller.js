@@ -54,6 +54,17 @@ let AdaptiveLearningController = class AdaptiveLearningController {
     deletePerformance(id) {
         return this.adaptiveService.deletePerformance(id);
     }
+    adaptDifficulty(studentId) {
+        return this.adaptiveService.adaptDifficulty(studentId);
+    }
+    adaptDifficultyByTopic(studentId, topic) {
+        return this.adaptiveService
+            .adaptDifficultyByTopic(studentId, topic);
+    }
+    generateRecommendations(studentId) {
+        return this.adaptiveService
+            .generateRecommendations(studentId);
+    }
     createRecommendation(dto) {
         return this.adaptiveService.createRecommendation(dto);
     }
@@ -155,6 +166,28 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AdaptiveLearningController.prototype, "deletePerformance", null);
+__decorate([
+    (0, common_1.Post)('adapt/:studentId'),
+    __param(0, (0, common_1.Param)('studentId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdaptiveLearningController.prototype, "adaptDifficulty", null);
+__decorate([
+    (0, common_1.Get)('adapt/:studentId/topic/:topic'),
+    __param(0, (0, common_1.Param)('studentId')),
+    __param(1, (0, common_1.Param)('topic')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], AdaptiveLearningController.prototype, "adaptDifficultyByTopic", null);
+__decorate([
+    (0, common_1.Post)('recommendations/generate/:studentId'),
+    __param(0, (0, common_1.Param)('studentId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdaptiveLearningController.prototype, "generateRecommendations", null);
 __decorate([
     (0, common_1.Post)('recommendations'),
     __param(0, (0, common_1.Body)()),

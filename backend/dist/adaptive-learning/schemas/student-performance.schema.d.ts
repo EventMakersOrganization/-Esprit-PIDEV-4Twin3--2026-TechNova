@@ -7,6 +7,8 @@ export declare class StudentPerformance {
     timeSpent: number;
     attemptDate: Date;
     source: string;
+    topic: string;
+    difficulty: string;
 }
 export declare const StudentPerformanceSchema: import("mongoose").Schema<StudentPerformance, import("mongoose").Model<StudentPerformance, any, any, any, Document<unknown, any, StudentPerformance> & StudentPerformance & {
     _id: import("mongoose").Types.ObjectId;

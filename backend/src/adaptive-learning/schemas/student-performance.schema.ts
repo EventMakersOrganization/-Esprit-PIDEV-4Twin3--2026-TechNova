@@ -26,6 +26,16 @@ export class StudentPerformance {
     default: 'exercise'
   })
   source: string;
+
+  // ── Nouveaux champs pour adaptation ──
+  @Prop({ default: 'general' })
+  topic: string;
+
+  @Prop({
+    enum: ['beginner', 'intermediate', 'advanced'],
+    default: 'beginner'
+  })
+  difficulty: string;
 }
 
 export const StudentPerformanceSchema =
