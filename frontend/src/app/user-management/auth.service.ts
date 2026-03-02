@@ -7,7 +7,10 @@ interface LoginResponse {
   token: string;
   user: {
     id: string;
-    name: string;
+    first_name?: string;
+    last_name?: string;
+    name?: string;
+    email?: string;
     role: string;
   };
 }
@@ -28,7 +31,7 @@ export class AuthService {
     }
   }
 
-  register(user: { name: string; email: string; password: string }): Observable<any> {
+  register(user: { first_name: string; last_name: string; phone?: string; email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/register`, user);
   }
 
@@ -36,9 +39,28 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials).pipe(
       tap(response => {
         localStorage.setItem(this.tokenKey, response.token);
+        localStorage.setItem('userRole', response.user.role);
         this.userSubject.next(response.user);
       })
     );
+  }
+
+  loginWithGoogle(idToken: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login/google`, { idToken }).pipe(
+      tap(response => {
+        localStorage.setItem(this.tokenKey, response.token);
+        localStorage.setItem('userRole', response.user.role);
+        this.userSubject.next(response.user);
+      })
+    );
+  }
+
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/reset-password`, { token, password });
   }
 
   logout() {

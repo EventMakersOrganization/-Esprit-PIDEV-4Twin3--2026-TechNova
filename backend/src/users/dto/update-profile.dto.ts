@@ -1,19 +1,27 @@
-import { IsOptional, IsString, IsObject } from 'class-validator';
+import { IsOptional, IsString, IsIn, IsInt } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  name?: string;
+  first_name?: string;
 
   @IsOptional()
   @IsString()
-  academicLevel?: string;
+  last_name?: string;
 
   @IsOptional()
   @IsString()
-  enrolledCourse?: string;
+  phone?: string;
 
   @IsOptional()
-  @IsObject()
-  preferences?: Record<string, any>;
+  @IsString()
+  academic_level?: string;
+
+  @IsOptional()
+  @IsIn(['LOW', 'MEDIUM', 'HIGH'])
+  risk_level?: 'LOW' | 'MEDIUM' | 'HIGH';
+
+  @IsOptional()
+  @IsInt()
+  points_gamification?: number;
 }

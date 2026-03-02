@@ -20,6 +20,12 @@ const user_schema_1 = require("./schemas/user.schema");
 const student_profile_schema_1 = require("./schemas/student-profile.schema");
 const activity_service_1 = require("../activity/activity.service");
 const activity_schema_1 = require("../activity/schemas/activity.schema");
+<<<<<<< HEAD
+=======
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
 let UsersService = class UsersService {
     constructor(userModel, profileModel, activityService) {
         this.userModel = userModel;
@@ -35,6 +41,7 @@ let UsersService = class UsersService {
         return {
             user: {
                 id: user._id,
+<<<<<<< HEAD
                 name: user.name,
                 email: user.email,
                 role: user.role,
@@ -46,6 +53,22 @@ let UsersService = class UsersService {
                 preferences: profile.preferences,
                 averageScore: profile.averageScore,
             } : null,
+=======
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                status: user.status,
+            },
+            profile: profile
+                ? {
+                    academic_level: profile.academic_level,
+                    risk_level: profile.risk_level,
+                    points_gamification: profile.points_gamification,
+                }
+                : null,
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
         };
     }
     async updateProfile(userId, updateProfileDto) {
@@ -53,26 +76,213 @@ let UsersService = class UsersService {
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
+<<<<<<< HEAD
         if (updateProfileDto.name) {
             user.name = updateProfileDto.name;
         }
         if (updateProfileDto.academicLevel || updateProfileDto.enrolledCourse || updateProfileDto.preferences) {
+=======
+        if (updateProfileDto.first_name) {
+            user.first_name = updateProfileDto.first_name;
+        }
+        if (updateProfileDto.last_name) {
+            user.last_name = updateProfileDto.last_name;
+        }
+        if (updateProfileDto.phone) {
+            user.phone = updateProfileDto.phone;
+        }
+        if (user.role === user_schema_1.UserRole.STUDENT && (updateProfileDto.academic_level ||
+            updateProfileDto.risk_level ||
+            updateProfileDto.points_gamification !== undefined)) {
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
             let profile = await this.profileModel.findOne({ userId }).exec();
             if (!profile) {
                 profile = new this.profileModel({ userId });
             }
+<<<<<<< HEAD
             if (updateProfileDto.academicLevel)
                 profile.academicLevel = updateProfileDto.academicLevel;
             if (updateProfileDto.enrolledCourse)
                 profile.enrolledCourse = updateProfileDto.enrolledCourse;
             if (updateProfileDto.preferences)
                 profile.preferences = { ...profile.preferences, ...updateProfileDto.preferences };
+=======
+            if (updateProfileDto.academic_level)
+                profile.academic_level = updateProfileDto.academic_level;
+            if (updateProfileDto.risk_level)
+                profile.risk_level = updateProfileDto.risk_level;
+            if (updateProfileDto.points_gamification !== undefined)
+                profile.points_gamification = updateProfileDto.points_gamification;
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
             await profile.save();
         }
         await user.save();
         await this.activityService.logActivity(userId, activity_schema_1.ActivityAction.PROFILE_UPDATE);
         return this.getProfile(userId);
     }
+<<<<<<< HEAD
+=======
+    async getUsersByRole(role) {
+        let query;
+        if (role === user_schema_1.UserRole.INSTRUCTOR) {
+            query = { role: { $in: [user_schema_1.UserRole.INSTRUCTOR, 'teacher'] } };
+        }
+        else {
+            query = { role };
+        }
+        const users = await this.userModel.find(query).select('-password').exec();
+        if (role === user_schema_1.UserRole.STUDENT) {
+            const userIds = users.map(u => u._id);
+            const profiles = await this.profileModel.find({ userId: { $in: userIds } }).exec();
+            const profileMap = new Map();
+            profiles.forEach(p => profileMap.set(String(p.userId), p));
+            return users.map(u => {
+                const p = profileMap.get(String(u._id));
+                return {
+                    id: u._id,
+                    first_name: u.first_name,
+                    last_name: u.last_name,
+                    email: u.email,
+                    phone: u.phone,
+                    role: u.role,
+                    status: u.status,
+                    createdAt: u.createdAt,
+                    updatedAt: u.updatedAt,
+                    academic_level: p ? p.academic_level : undefined,
+                    risk_level: p ? p.risk_level : undefined,
+                    points_gamification: p ? p.points_gamification : undefined,
+                };
+            });
+        }
+        return users.map(u => ({
+            id: u._id,
+            first_name: u.first_name,
+            last_name: u.last_name,
+            email: u.email,
+            phone: u.phone,
+            role: u.role,
+            status: u.status,
+            createdAt: u.createdAt,
+            updatedAt: u.updatedAt,
+        }));
+    }
+    async updateUserById(id, dto) {
+        const user = await this.userModel.findById(id);
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        if (dto.first_name)
+            user.first_name = dto.first_name;
+        if (dto.last_name)
+            user.last_name = dto.last_name;
+        if (dto.email)
+            user.email = dto.email;
+        if (dto.phone)
+            user.phone = dto.phone;
+        if (dto.role)
+            user.role = dto.role;
+        if (dto.status)
+            user.status = dto.status;
+        if (dto.password) {
+            user.password = await bcrypt.hash(dto.password, 10);
+        }
+        await user.save();
+        if (user.role === user_schema_1.UserRole.STUDENT && (dto.academic_level ||
+            dto.risk_level ||
+            dto.points_gamification !== undefined)) {
+            let profile = await this.profileModel.findOne({ userId: id }).exec();
+            if (!profile) {
+                profile = new this.profileModel({ userId: id });
+            }
+            if (dto.academic_level)
+                profile.academic_level = dto.academic_level;
+            if (dto.risk_level)
+                profile.risk_level = dto.risk_level;
+            if (dto.points_gamification !== undefined)
+                profile.points_gamification = dto.points_gamification;
+            await profile.save();
+        }
+        await this.activityService.logActivity(id, activity_schema_1.ActivityAction.PROFILE_UPDATE);
+        return { success: true };
+    }
+    async deleteUserById(id) {
+        const user = await this.userModel.findById(id);
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        await this.profileModel.deleteOne({ userId: id }).exec();
+        await this.userModel.deleteOne({ _id: id }).exec();
+        await this.activityService.logActivity(id, activity_schema_1.ActivityAction.PROFILE_UPDATE);
+        return { success: true };
+    }
+    async createUserByAdmin(dto) {
+        const existing = await this.userModel.findOne({ email: dto.email });
+        if (existing) {
+            throw new common_1.ConflictException('Email already exists');
+        }
+        const plainPassword = dto.password && dto.password.trim().length >= 6
+            ? dto.password
+            : crypto.randomBytes(6).toString('base64').slice(0, 10);
+        const hashedPassword = await bcrypt.hash(plainPassword, 10);
+        const lastName = dto.last_name && dto.last_name.trim().length > 0
+            ? dto.last_name
+            : dto.first_name;
+        const user = new this.userModel({
+            first_name: dto.first_name,
+            last_name: lastName,
+            email: dto.email,
+            phone: dto.phone,
+            password: hashedPassword,
+            role: dto.role || user_schema_1.UserRole.STUDENT,
+            status: dto.status || user_schema_1.UserStatus.ACTIVE,
+        });
+        await user.save();
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT || '587', 10),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: process.env.SMTP_USER
+                ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+                : undefined,
+        });
+        const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:4200'}/login`;
+        try {
+            if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+                await transporter.sendMail({
+                    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+                    to: dto.email,
+                    subject: 'Your StartSmart account',
+                    text: `Hello ${dto.first_name},\n\n` +
+                        `An account has been created for you.\n\n` +
+                        `Email: ${dto.email}\n` +
+                        `Password: ${plainPassword}\n\n` +
+                        `You can log in here: ${loginUrl}\n`,
+                });
+            }
+            else {
+                console.log('[Admin create user] Credentials (no SMTP configured):', {
+                    email: dto.email,
+                    password: plainPassword,
+                });
+            }
+        }
+        catch (err) {
+            console.error('Send create-user email failed:', err);
+        }
+        return {
+            message: 'User created successfully',
+            user: {
+                id: user._id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                status: user.status,
+            },
+        };
+    }
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

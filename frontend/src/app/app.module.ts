@@ -8,6 +8,9 @@ import { AppComponent } from './app.component';
 import { UserManagementModule } from './user-management/user-management.module';
 import { JwtInterceptor } from './user-management/jwt.interceptor';
 
+
+import { SocialLoginModule, SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { environment } from '../environments/environment';
 @NgModule({
   declarations: [
     AppComponent
@@ -17,10 +20,25 @@ import { JwtInterceptor } from './user-management/jwt.interceptor';
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    UserManagementModule
+    UserManagementModule,
+    SocialLoginModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider(
+  environment.googleClientId
+)
+          }
+        ]
+      } as SocialAuthServiceConfig,
+    }
   ],
   bootstrap: [AppComponent]
 })

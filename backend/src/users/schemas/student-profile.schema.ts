@@ -8,17 +8,18 @@ export class StudentProfile {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, unique: true })
   userId: Types.ObjectId;
 
-  @Prop({ required: true })
-  academicLevel: string;
+  @Prop()
+  academic_level: string;
 
-  @Prop({ required: true })
-  enrolledCourse: string;
-
-  @Prop({ type: Object, default: {} })
-  preferences: Record<string, any>;
+  @Prop({
+    type: String,
+    enum: ['LOW', 'MEDIUM', 'HIGH'],
+    default: 'LOW',
+  })
+  risk_level: 'LOW' | 'MEDIUM' | 'HIGH';
 
   @Prop({ default: 0 })
-  averageScore: number;
+  points_gamification: number;
 }
 
 export const StudentProfileSchema = SchemaFactory.createForClass(StudentProfile);

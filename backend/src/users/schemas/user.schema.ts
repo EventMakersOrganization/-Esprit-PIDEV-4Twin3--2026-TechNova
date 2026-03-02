@@ -5,7 +5,7 @@ export type UserDocument = User & Document;
 
 export enum UserRole {
   STUDENT = 'student',
-  TEACHER = 'teacher',
+  INSTRUCTOR = 'instructor',
   ADMIN = 'admin',
 }
 
@@ -26,7 +26,13 @@ export enum UserStatus {
 })
 export class User {
   @Prop({ required: true })
-  name: string;
+  first_name: string;
+
+  @Prop({ required: true })
+  last_name: string;
+
+  @Prop()
+  phone: string;
 
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
   email: string;
@@ -48,8 +54,17 @@ export class User {
   })
   status: UserStatus;
 
-  @Prop({ default: Date.now })
+  @Prop()
   createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
+
+  @Prop({ select: false })
+  passwordResetToken?: string;
+
+  @Prop({ select: false })
+  passwordResetExpires?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

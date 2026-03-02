@@ -1,0 +1,6 @@
+langchain
+chromadb
+ollama
+pymongo
+fastapi
+uvicorn

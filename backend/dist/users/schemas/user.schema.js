@@ -14,7 +14,11 @@ const mongoose_1 = require("@nestjs/mongoose");
 var UserRole;
 (function (UserRole) {
     UserRole["STUDENT"] = "student";
+<<<<<<< HEAD
     UserRole["TEACHER"] = "teacher";
+=======
+    UserRole["INSTRUCTOR"] = "instructor";
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
     UserRole["ADMIN"] = "admin";
 })(UserRole || (exports.UserRole = UserRole = {}));
 var UserStatus;
@@ -28,7 +32,19 @@ exports.User = User;
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
+<<<<<<< HEAD
 ], User.prototype, "name", void 0);
+=======
+], User.prototype, "first_name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], User.prototype, "last_name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], User.prototype, "phone", void 0);
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
 __decorate([
     (0, mongoose_1.Prop)({ required: true, unique: true, lowercase: true, trim: true }),
     __metadata("design:type", String)
@@ -54,9 +70,27 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
 __decorate([
+<<<<<<< HEAD
     (0, mongoose_1.Prop)({ default: Date.now }),
     __metadata("design:type", Date)
 ], User.prototype, "createdAt", void 0);
+=======
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Date)
+], User.prototype, "createdAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Date)
+], User.prototype, "updatedAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ select: false }),
+    __metadata("design:type", String)
+], User.prototype, "passwordResetToken", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ select: false }),
+    __metadata("design:type", Date)
+], User.prototype, "passwordResetExpires", void 0);
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({
         timestamps: true,

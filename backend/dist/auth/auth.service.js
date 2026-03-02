@@ -14,10 +14,19 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
+<<<<<<< HEAD
+=======
+const google_auth_library_1 = require("google-auth-library");
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = require("bcrypt");
+<<<<<<< HEAD
+=======
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
 const user_schema_1 = require("../users/schemas/user.schema");
 const activity_service_1 = require("../activity/activity.service");
 const activity_schema_1 = require("../activity/schemas/activity.schema");
@@ -28,14 +37,24 @@ let AuthService = class AuthService {
         this.activityService = activityService;
     }
     async register(createUserDto) {
+<<<<<<< HEAD
         const { email, password, name } = createUserDto;
+=======
+        const { email, password, first_name, last_name, phone } = createUserDto;
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
         const existingUser = await this.userModel.findOne({ email });
         if (existingUser) {
             throw new common_1.ConflictException('Email already exists');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new this.userModel({
+<<<<<<< HEAD
             name,
+=======
+            first_name,
+            last_name,
+            phone,
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
             email,
             password: hashedPassword,
             role: user_schema_1.UserRole.STUDENT,
@@ -43,6 +62,41 @@ let AuthService = class AuthService {
         await user.save();
         return { message: 'User registered successfully' };
     }
+<<<<<<< HEAD
+=======
+    async loginWithGoogle(idToken) {
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        if (!clientId) {
+            throw new common_1.BadRequestException('Google client ID is not configured');
+        }
+        const client = new google_auth_library_1.OAuth2Client(clientId);
+        let ticket;
+        try {
+            ticket = await client.verifyIdToken({ idToken, audience: clientId });
+        }
+        catch (err) {
+            throw new common_1.BadRequestException('Invalid Google ID token');
+        }
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+            throw new common_1.BadRequestException('Google token payload missing email');
+        }
+        const email = payload.email;
+        const first_name = payload.given_name || '';
+        const last_name = payload.family_name || '';
+        let user = await this.userModel.findOne({ email });
+        if (!user) {
+            user = new this.userModel({
+                first_name,
+                last_name,
+                email,
+                role: user_schema_1.UserRole.STUDENT,
+            });
+            await user.save();
+        }
+        return this.login(user.toObject ? user.toObject() : user);
+    }
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
     async validateUser(email, password) {
         const user = await this.userModel.findOne({ email }).select('+password');
         if (user && await bcrypt.compare(password, user.password)) {
@@ -59,11 +113,78 @@ let AuthService = class AuthService {
             token,
             user: {
                 id: user._id,
+<<<<<<< HEAD
                 name: user.name,
+=======
+                first_name: user.first_name,
+                last_name: user.last_name,
+                name: `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim(),
+                email: user.email,
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
                 role: user.role,
             },
         };
     }
+<<<<<<< HEAD
+=======
+    async forgotPassword(email) {
+        const user = await this.userModel.findOne({ email }).select('+passwordResetToken +passwordResetExpires');
+        if (!user) {
+            return { message: 'If an account exists with this email, you will receive a reset link.' };
+        }
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        user.passwordResetToken = hashedToken;
+        user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
+        await user.save({ validateBeforeSave: false });
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+        const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT || '587', 10),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: process.env.SMTP_USER
+                ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+                : undefined,
+        });
+        try {
+            if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+                await transporter.sendMail({
+                    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+                    to: email,
+                    subject: 'Password reset',
+                    text: `Use this link to reset your password (valid 1 hour): ${resetUrl}`,
+                    html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
+                });
+            }
+            else {
+                console.log('[Forgot password] Reset link (no SMTP configured):', resetUrl);
+            }
+        }
+        catch (err) {
+            user.passwordResetToken = undefined;
+            user.passwordResetExpires = undefined;
+            await user.save({ validateBeforeSave: false });
+            console.error('Send reset email failed:', err);
+        }
+        return { message: 'If an account exists with this email, you will receive a reset link.' };
+    }
+    async resetPassword(token, newPassword) {
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        const user = await this.userModel.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpires: { $gt: new Date() },
+        }).select('+password +passwordResetToken +passwordResetExpires');
+        if (!user) {
+            throw new common_1.BadRequestException('Invalid or expired reset token');
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+        return { message: 'Password has been reset. You can log in with your new password.' };
+    }
+>>>>>>> d0fa0b29b430d886d34dfff22e9ab6d23544a73a
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
