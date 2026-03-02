@@ -396,6 +396,19 @@
   </app-progress-charts>
 </div>
 
+<!-- ── Performance History ── -->
+<div class="col-span-12">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h3 class="text-xl font-bold">Performance History</h3>
+      <p class="text-sm text-slate-500">All your completed exercises</p>
+    </div>
+  </div>
+  <app-performance-history
+    [performances]="performances">
+  </app-performance-history>
+</div>
+
       </div>
     </div>
   </main>

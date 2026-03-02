@@ -22,6 +22,7 @@ import { AdaptiveLearningService } from './adaptive-learning.service';
 import { LevelTestComponent } from './level-test/level-test.component';
 import { LevelTestResultComponent } from './level-test-result/level-test-result.component';
 import { ProgressChartsComponent } from './progress-charts/progress-charts.component';
+import { PerformanceHistoryComponent } from './performance-history/performance-history.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -101,6 +102,7 @@ const routes: Routes = [
     LevelTestComponent,
     LevelTestResultComponent,
     ProgressChartsComponent,
+    PerformanceHistoryComponent,
   ],
   imports: [
     CommonModule,
